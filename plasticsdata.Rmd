@@ -1,0 +1,77 @@
+---
+title: "Plastic pollution"
+author: "Judith Neve"
+date: "26/01/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidytuesdayR)
+library(tidyverse)
+library(maps)
+```
+
+# Get the Data
+
+```{r}
+tuesdata <- tidytuesdayR::tt_load('2021-01-26')
+tuesdata <- tidytuesdayR::tt_load(2021, week = 5)
+
+plastics <- tuesdata$plastics
+```
+
+# Looking at the data
+
+```{r}
+plastics$country %>% factor() %>% levels()
+```
+
+```{r}
+plastics$parent_company %>% factor() %>% levels()
+```
+
+Look at total amount of plastic per country per year & the difference.
+
+# Data manipulation
+
+## Counting the grand total of plastics per country per year
+
+```{r}
+plastics_summary <- plastics %>%
+  group_by(country, year) %>%
+  summarise(total_plastics = sum(grand_total)) # creating a summarised data frame where we have the total number of plastics per country per year
+```
+
+## Computing the difference between the total of plastics in 2019 and 2020
+
+```{r}
+plastics_difference <- plastics_summary %>%
+  pivot_wider(names_from = year, values_from = total_plastics) %>% # pivoting the data to have a column for each year
+  na.exclude() %>% # excluding the countries with data only for one year
+  mutate(diff = `2019` - `2020`) # computing the difference between both years
+```
+
+## Plotting
+
+```{r}
+world_map <- map_data("world") # coordinates data frame
+
+world_map_plastics <- left_join(world_map, plastics_difference, by = c('region' = 'country')) # joining coordinates with plastics data
+
+ggplot() +
+  geom_polygon(data = world_map_plastics, aes(x = long, y = lat, group = group, fill = diff)) +
+  scale_fill_gradient(low = "red", high = "green", na.value = "grey", limits = c(-40000, 40000), name = "Difference in count") +
+  theme_minimal() +
+  theme_void() +
+  labs(title = "Difference in total count of plastics collected per country between 2019 and 2020",
+       subtitle = "Negative differences are due to a greater number of plastics counted in 2020 than in 2019 in the country.
+Positive differences are due to a lesser number of plastics counted in 2020 than in 2019 in the country.")
+```
+
+## Saving the plot
+
+```{r}
+ggsave("plastic_waste.jpg", width = 20, height = 10, units = "cm", dpi = 300)
+```
+
