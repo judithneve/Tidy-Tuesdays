@@ -1,0 +1,70 @@
+---
+title: "HBCU enrollment"
+author: "Judith Neve"
+date: "02/02/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(png)
+library(ggpubr)
+library(extrafont)
+
+# uncomment following two lines if not done before
+# font_import()
+# loadfonts(device = "win")
+```
+
+# Reading in data
+
+```{r}
+tuesdata <- tidytuesdayR::tt_load(2021, week = 6)
+hbcu <- tuesdata$hbcu_all
+```
+
+Idea: a graph showing the numbers of men and women
+
+# Wrangling the data
+
+```{r}
+hbcu_long <- hbcu %>%
+  mutate(Total = Males + Females) %>% # in case some in the given total are NA
+  pivot_longer(cols = c("Males", "Females", "Total"), values_to = "Number_enrolled", names_to = "Category")
+```
+
+
+# Plotting the data
+
+```{r}
+url <- "https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-02-02/hbcu-logo.png"
+download.file(url, destfile = "hbcu.png", mode = 'wb')
+img <- readPNG("hbcu.png")
+
+ggplot(data = hbcu_long) +
+  background_image(img) +
+  geom_line(aes(x = Year, y = Number_enrolled, lty = Category)) +
+  scale_linetype_manual(values = c("dashed", "dotted", "solid")) +
+  labs(title = "Number of students enrolled in HBCUs over time",
+       linetype = "Number enrolled") +
+  xlab("Year") +
+  ylab("Number of students enrolled") +
+  theme_bw() +
+  theme(panel.grid = element_blank(),
+        plot.background = element_rect(fill = "#FDFD96"),
+        legend.background = element_rect(fill = "#FDFD96"),
+        legend.key = element_rect(fill = "#FDFD96"),
+        # these are all different colours below to easily identify what they control
+        plot.title = element_text(family = "Lucida Bright", colour = "#d72024", size = 15), # red
+        axis.title = element_text(family = "Lucida Bright", colour = "#a54785", size = 10), # purple
+        axis.text = element_text(family = "Lucida Bright", colour = "#1392d7", size = 10), # blue
+        legend.text = element_text(family = "Lucida Bright", colour = "#a5ce42", size = 10), # green
+        legend.title = element_text(family = "Lucida Bright", colour = "#ffcd30", size = 10)) # yellow
+```
+
+## Saving the plot
+
+```{r}
+ggsave("hbcu.jpg", width = 20, height = 10, units = "cm", dpi = 300)
+```
