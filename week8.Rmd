@@ -31,22 +31,25 @@ conjugal <- conjugal %>%
 ```{r}
 ggplot(conjugal, aes(x = Population, y = Proportion, fill = Category)) +
   facet_wrap(~ Age, nrow = 3) +
-  geom_col(key_glyph = draw_key_point) +
-  # geom_text(aes(label = Proportion), vjust = 0.5) +
+  geom_bar(position = "fill", stat = "identity", key_glyph = draw_key_point) +
+  geom_text(aes(y = Proportion, x = Population, label = paste0(Proportion, "%")), size = 3.5, position = position_fill(vjust = 0.5)) +
+  geom_text(aes(x = Population, y = 0, label = toupper(Population)), hjust = 1, nudge_y = -0.02) +
+  geom_text(aes(x = 1.5, y = 0, label = toupper(Age)), hjust = 0.5, nudge_y = -0.4, stat = "unique") +
   coord_flip() +
   scale_fill_manual(values=c("#de2847", "#f3b31a", "#4b6250"),
                     breaks = c("Single", "Married", "Divorced and Widowed")) +
   labs(fill = "CONJUGAL CONDITION") +
-  xlab("") +
-  ylab("") +
-  theme_bw() +
-  theme(plot.background = element_rect(fill = "#e7d8c8"),
-        legend.background = element_rect(fill = "#e7d8c8"),
-        panel.background = element_rect(fill = "#e7d8c8"),
-        legend.key = element_rect(fill = "#e7d8c8"),
-        panel.grid = element_blank(),
-        legend.position = "top") +
+  theme_void() +
+  theme(legend.position = "top",
+        panel.spacing.y = unit(1.5, "lines"),
+        plot.background = element_rect(fill = "#DFD6C7", color = NA),
+        strip.text = element_blank()) +
   guides(fill = guide_legend(override.aes = list(shape = 21, size = 6)))
+```
 
+# Saving the plot
+
+```{r}
+ggsave("duboischallenge.jpg", width = 20, height = 10, units = "cm", dpi = 300)
 ```
 
