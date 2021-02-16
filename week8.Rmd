@@ -1,5 +1,5 @@
 ---
-title: "Dubois Challenge"
+title: "DuBois Challenge"
 author: "Judith Neve"
 date: "16/02/2021"
 output: html_document
