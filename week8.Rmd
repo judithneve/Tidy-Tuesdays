@@ -22,7 +22,8 @@ conjugal <- tuesdata$conjugal
 ```{r}
 conjugal <- conjugal %>%
   pivot_longer(cols = c("Single", "Married", "Divorced and Widowed"), names_to = "Category", values_to = "Proportion") %>%
-  mutate(Population = ifelse(Population == "Negroes", "Black", Population))
+  mutate(Population = ifelse(Population == "Negroes", "Black", Population),
+         Category = toupper(Category))
 ```
 
 
@@ -31,25 +32,30 @@ conjugal <- conjugal %>%
 ```{r}
 ggplot(conjugal, aes(x = Population, y = Proportion, fill = Category)) +
   facet_wrap(~ Age, nrow = 3) +
-  geom_bar(position = "fill", stat = "identity", key_glyph = draw_key_point) +
-  geom_text(aes(y = Proportion, x = Population, label = paste0(Proportion, "%")), size = 3.5, position = position_fill(vjust = 0.5)) +
-  geom_text(aes(x = Population, y = 0, label = toupper(Population)), hjust = 1, nudge_y = -0.02) +
-  geom_text(aes(x = 1.5, y = 0, label = toupper(Age)), hjust = 0.5, nudge_y = -0.4, stat = "unique") +
+  geom_bar(position = "fill", stat = "identity", key_glyph = draw_key_point, width = 0.5) +
+  geom_text(aes(y = Proportion, x = Population, label = paste0(Proportion, "%")), size = 3.5, position = position_fill(vjust = 0.5), family = "mono") +
+  geom_text(aes(x = Population, y = 0, label = toupper(Population)), hjust = 1, nudge_y = -0.02, family = "mono") +
+  geom_text(aes(x = 1.5, y = 0, label = toupper(Age)), hjust = 0.5, nudge_y = -0.4, stat = "unique", family = "mono") +
   coord_flip() +
   scale_fill_manual(values=c("#de2847", "#f3b31a", "#4b6250"),
-                    breaks = c("Single", "Married", "Divorced and Widowed")) +
-  labs(fill = "CONJUGAL CONDITION") +
+                    breaks = c("SINGLE", "MARRIED", "DIVORCED AND WIDOWED")) +
+  labs(title = "CONJUGAL CONDITION .", fill = "") +
   theme_void() +
-  theme(legend.position = "top",
+  theme(plot.title = element_text(hjust = 0.5, family = "mono", size = 18, face = "bold"),
+        legend.position = "top",
         panel.spacing.y = unit(1.5, "lines"),
+        legend.text = element_text(family = "mono", size = 16),
         plot.background = element_rect(fill = "#DFD6C7", color = NA),
-        strip.text = element_blank()) +
-  guides(fill = guide_legend(override.aes = list(shape = 21, size = 6)))
+        strip.text = element_blank(),
+        plot.margin = margin(50, 50, 150, 50)) +
+  guides(fill = guide_legend(override.aes = list(shape = 21, size = 6))) +
+  annotate("text", x = 1.6, y = -0.2, label = '{', size = 38, color = "black", family = "mono")
+
 ```
 
 # Saving the plot
 
 ```{r}
-ggsave("duboischallenge.jpg", width = 20, height = 10, units = "cm", dpi = 300)
+ggsave("duboischallenge.jpg", width = 22, height = 28, units = "cm", dpi = 300)
 ```
 
